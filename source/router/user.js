@@ -15,8 +15,9 @@ router.post('/users', async (req,res)=>{
 
         await sendWelcomeEmail(user.email, user.name);
 
-        const token = user.generateAuthToken();
-        res.status(201).send(user).send(token);
+        const token = await user.generateAuthToken();
+        console.log(token)
+        res.status(201).send({token, user});
     }catch(e){
         if(e.code == 11000){
             console.log('existing email account')
