@@ -79,7 +79,7 @@ userSchema.methods.toJSON = function(){
     return userObj;
 }
 
-// custom Schema middleware function -login -> create toekn-
+// custom Schema middleware function -login -> create token
 userSchema.methods.generateAuthToken = async function(){
     const user = this;
     const token = jwt.sign({_id: user._id.toString()}, process.env.JWT_TOKEN,{expiresIn: '3 days'})
@@ -107,7 +107,7 @@ userSchema.statics.findByCredentials = async (email, password)=>{
     return user;
 }
 
-// pre middleware function for query save
+// pre middleware function for query savnpm e
 userSchema.pre('save', async function(next){
     const user = this;
 

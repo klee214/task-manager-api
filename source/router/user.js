@@ -16,7 +16,6 @@ router.post('/users', async (req,res)=>{
         await sendWelcomeEmail(user.email, user.name);
 
         const token = await user.generateAuthToken();
-        console.log(token)
         res.status(201).send({token, user});
     }catch(e){
         if(e.code == 11000){
@@ -37,7 +36,8 @@ router.post('/users/login', async (req,res)=>{
     try{
         const user = await User.findByCredentials(req.body.email, req.body.password);
         const token = await user.generateAuthToken();
-
+        
+        console.log(token)
         res.send({user, token})
     }catch(e){
         res.status(400).send(e);
@@ -83,12 +83,12 @@ const upload = multer({
 
 router.post('/users/me/avatar', auth, upload.single('avatar'), (err, req, res, next) => {
     res.status(400).send({error: err.message})
-},(req, res)=>{
-    const buffer = sharp(req.file.buffer).resize({width: 250, height: 250}).png().toBuffer()
+}, async (req, res)=>{
+    const buffer = await sharp(req.file.buffer).resize({width: 250, height: 250}).png().toBuffer()
     // req.user.avatar = req.file.buffer;
 
     req.user.avatar = buffer
-    console.log(req.file)
+    await req.user.save();
     res.send();
 })
 
@@ -115,7 +115,7 @@ router.get('/users/:id/avatar', async (req, res)=>{
 router.patch('/users/me', auth, async (req,res)=>{
     const reqBody = Object.keys(req.body);
     const userObject = ["name", "email", "password", "age"];
-    const isValid = reqBody.every(reqBody=>userObject.includes(reqBody));
+    const isValid = reqBody.every(reqBody => userObject.includes(reqBody));
     
     if (!isValid){
         return res.status(400).send('error : invalid updates')
